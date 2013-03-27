@@ -13,4 +13,11 @@ It will generate two files:
 * result.html : The cleaned up and prettyfied html of the shedule
 * result.css  : Rules for the table alignement and the colors (editable to your preference)
 
+Before and after screenshots
+----------------------------
+
+* Before
+![Alt text](Before.png "Before")
+
+* After
 ![Alt text](After.png "After")
