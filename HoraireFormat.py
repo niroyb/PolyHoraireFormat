@@ -39,8 +39,18 @@ def insertBR(matchobj):
     return txt + '<br />'
 
 #File to be formatted
-#txt = open("Horaire_H13_1.htm").read()
-txt = open("Horaire.htm").read()
+#Parse command arguments for the file to be formatted
+if len(sys.argv) != 2:
+    print "Invalid number of arguments. Looking for one filename"
+    sys.exit(2)
+
+filePath = sys.argv[1]
+
+if not os.path.isfile(filePath):
+    print "Invalid file passed as parameter"
+    sys.exit(2)
+
+txt = open(filePath).read()
 
 #Preparser formatting
 txt = txt.replace('<br>','<br />').replace('À déterminer','')
