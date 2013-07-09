@@ -8,8 +8,8 @@ Depends on BeautifulSoup for xml tree manipulation
 Instructions
 ------------
 
-Save your Polytechnique schedule as an .htm
-Call the program with the path of the .htm as the only argument
+* Save your Polytechnique schedule as an .htm
+* Call the program with the path of the .htm as the only argument
 
 Output
 ------
