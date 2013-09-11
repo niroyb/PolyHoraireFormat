@@ -123,20 +123,25 @@ dirty = shedule.findAll(dirt=True)
 for d in dirty:
     d.extract()
 
-#add Class Name to cells
-tds = [t.parent for t in soup.findAll(text=re.compile(sigleRe))] #get td with sigle
+#add class Course to cells
+tds = set([t.parent for t in soup.findAll(text=re.compile(sigleRe))]) #get td with sigle
 courses = set()
 for td in tds:
     course = str(td.contents[0])
     courses.add(course.strip())
-    if len(re.findall(sigleRe, td.text, re.MULTILINE)) > 1:
-        course += ' conflict'
     td['class'] = course
-#print courses
+
+#Add class Conflict to cells with multiple courses
+courseRe = '|'.join(courses)
+for td in tds:
+    tdcourses = re.findall(courseRe, td.text, re.MULTILINE)
+    if len(tdcourses) > 1:
+        td['class'] += ' Conflict'
 
 cols = getSpacedRGB(len(courses))
 fstr = '.{} {{ background-color:rgb{};}}'
 colCSSarr = [fstr.format(course,str(col)) for course, col in zip(courses, cols)]
+colCSSarr.append('.Conflict {font-weight:bold;}')
 colCSS = '\n'.join(colCSSarr)
 print colCSS
 
