@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 import colorsys
 import re
 import urllib
+import sys
+import os
 
 def getSpacedRGB(nbCols, lih = 0.7, sat = 0.8):
     ret = []
@@ -40,16 +42,24 @@ def insertBR(matchobj):
 
 #File to be formatted
 #Parse command arguments for the file to be formatted
-if len(sys.argv) != 2:
-    print "Invalid number of arguments. Looking for one filename"
+filePath = ''
+if len(sys.argv) == 1:
+    defaultPath = 'Horaire Personnel.htm'
+    if os.path.isfile(defaultPath):
+        filePath = defaultPath
+    else:
+        filePath = raw_input('Horaire path = ')
+elif len(sys.argv) == 2:
+    filePath = sys.argv[1]
+else:
+    print "Too many arguments"
     sys.exit(2)
-
-filePath = sys.argv[1]
 
 if not os.path.isfile(filePath):
     print "Invalid file passed as parameter"
     sys.exit(2)
 
+print 'Converting file :', filePath
 txt = open(filePath).read()
 
 #Preparser formatting
@@ -126,7 +136,7 @@ cols = getSpacedRGB(len(courses))
 fstr = '.{} {{ background-color:rgb{};}}'
 colCSSarr = [fstr.format(course,str(col)) for course, col in zip(courses, cols)]
 colCSS = '\n'.join(colCSSarr)
-#print colCSS
+print colCSS
 
 #genCSS
 css = '''td,th
