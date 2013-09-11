@@ -128,7 +128,9 @@ tds = [t.parent for t in soup.findAll(text=re.compile(sigleRe))] #get td with si
 courses = set()
 for td in tds:
     course = str(td.contents[0])
-    courses.add(course)
+    courses.add(course.strip())
+    if len(re.findall(sigleRe, td.text, re.MULTILINE)) > 1:
+        course += ' conflict'
     td['class'] = course
 #print courses
 
