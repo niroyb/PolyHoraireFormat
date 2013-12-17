@@ -71,10 +71,13 @@ txt = re.sub('</?font.*?>','',txt)
 genieRe = '[A-Z]{1,4}-?([A-Z]{3})?'
 numRe = '[0-9]{3,4}[A-Z]?'
 sigleRe = '(' + genieRe + numRe + ')'
-txt = re.sub(sigleRe, insertBR,txt)
+txt = re.sub(sigleRe, insertBR, txt)
 
 soup = BeautifulSoup(txt) #Parse html
 tables = soup.find_all('table') #Extract tables
+
+#Basic check to detect if the file is in the expected format
+assert len(tables) == 6, "Unexpected html format : Wrong number of tables"
 
 #remove all table formatting
 for table in tables:
@@ -124,11 +127,11 @@ for d in dirty:
     d.extract()
 
 #add class Course to cells
-tds = set([t.parent for t in soup.findAll(text=re.compile(sigleRe))]) #get td with sigle
+tds = set(t.parent for t in soup.findAll(text=re.compile(sigleRe))) #get td with sigle
 courses = set()
 for td in tds:
-    course = str(td.contents[0])
-    courses.add(course.strip())
+    course = str(td.contents[0]).strip()
+    courses.add(course)
     td['class'] = course
 
 #Add class Conflict to cells with multiple courses
@@ -138,12 +141,15 @@ for td in tds:
     if len(tdcourses) > 1:
         td['class'] += ' Conflict'
 
+#Generate css rules for each course
 cols = getSpacedRGB(len(courses))
 fstr = '.{} {{ background-color:rgb{};}}'
 colCSSarr = [fstr.format(course,str(col)) for course, col in zip(courses, cols)]
+
+#Add css rule for conflicts
 colCSSarr.append('.Conflict {font-weight:bold;}')
 colCSS = '\n'.join(colCSSarr)
-print colCSS
+#print colCSS
 
 #genCSS
 css = '''td,th
