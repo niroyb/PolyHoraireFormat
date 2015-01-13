@@ -1,0 +1,225 @@
+/* CSS Document */
+html, body {
+	height:100%;
+	margin:0;
+	padding:0;
+}
+body {
+	background-image:url(../images/5000px.png);
+	background-position:center;
+	background-repeat:repeat-y;
+	background-position:top;
+}
+#wrapper {
+	min-height:100%;
+	position:relative;
+}
+.container {
+	padding-bottom:15px;   /* La hauteur du div pour le footer (#filetPiedDePage) */
+}
+#bordureEntete {
+	height:18px;
+	width:100%;
+	background-color:#666;
+	position:absolute;
+	top:0;
+}
+#filetEntete {
+	height:1px;
+	width:100%;
+	background-color:#000000;
+	position:absolute;
+	top:116px;
+}
+#headerDiv {
+	padding-top:29px;
+	padding-bottom:11px;
+}
+#logoPolyEntete {
+	float:left;
+}
+.titreEntete {
+	float:right;
+}
+.lienEntete {
+	float:right;
+	font-size:10px;
+}
+.titre {
+	text-transform:uppercase;
+	font-weight:bold;
+	margin-top:25px;
+	padding-top:0;
+	border-top:1px solid #FA961E;
+	border-bottom:1px solid #FA961E;
+}
+.sousTitre {
+	font-size:14px;
+	font-weight:bold;
+}
+h3 {
+	text-transform:uppercase;
+	font-weight:bold;
+	background-color:#FA961E;
+	color:#FFFFFF;
+	padding-left:5px;
+}
+input[type="button"] {
+	margin-bottom:10px;
+	text-align:left;
+}
+input[type="button"].fullLenghtButton {
+	width:100%;
+}
+
+input[name="btnQuitter"] {
+	width:100px;
+}
+select {
+	/*width:100%;*/
+}
+/* .row { */
+div[class~="tableEffect"].row {
+	margin-bottom:0;
+	/*border-top:1px solid #CCC;*/
+	padding-top:15px;
+	padding-bottom:5px;
+	border-bottom:1px solid #DEDEDE!important;
+}
+.lienInstruction {
+	font-size:12px;
+	color:#777777!important;
+}
+.lienInstruction:hover {
+	color:#000000!important;
+}
+#filetPiedDePage {
+	height:15px;
+	background-image:url(../images/59pxcouleur.png);
+	background-position:center;
+	background-repeat:repeat-x;
+	width:100%;
+	position:absolute;
+	bottom:0;
+	left:0;
+}
+.complementInfo {
+	padding-top:2px;
+	font-weight:normal;
+	font-size:12px;
+	line-height:15px;
+}
+
+/*.remove-bottom { margin-bottom: 0 !important; }*/
+.replace-bottom { margin-bottom: 5px !important; }
+
+.inputEmulator {
+	margin:3px 0 26px 0;
+}
+
+.noteEncadree {
+	font-size:12px;
+	padding: 6px 4px;
+	background-color:#EFEFEF;
+}
+
+.colSoustitreDroite {
+	text-align:right;
+}
+
+.toujoursVisible {
+	display:inline!important;
+}	
+
+input[disabled] {
+    background:#ccc!important;
+    text-shadow:none!important;
+	color:#999;
+}
+input[disabled]:hover {
+    color:#999;
+}
+
+.messageErreur {
+	color:#C00;
+	font-weight:bold;
+}
+
+@media only screen and (max-width: 767px) {
+	#headerDiv {
+		padding-bottom:0;
+	}
+	#filetEntete {
+		top:146px!important;
+	}
+	.lienEntete {
+		float:none;
+	}
+	.titreEntete {
+		float:left!important;
+		clear:left;
+		margin-top:10px!important;
+	}
+	div[class~="tableEffect"].row {
+		/*	
+		border-bottom:1px solid #DEDEDE!important;
+		padding-top:20px; 
+		padding-bottom:10px; 
+		*/
+		/*border:1px solid #DEDEDE!important;*/
+		padding-top:25px;
+		padding-bottom:15px;
+		/*padding-left:20px;*/
+		text-align:center!important; /* pour les boutons et les textes*/
+		/*background-color:#C8C8C8!important;*/
+		/*border-bottom:1px solid #B91E32!important;*/
+		border-bottom:1px solid #CCC!important;
+	}
+	
+	div[class~="tableEffect"].row input, div[class~="tableEffect"].row select {
+		/* pour els listes déroulantes*/
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	div[class~="tableEffect"].row:nth-child(odd) {
+		/*background-color:#D2E5AC!important;*/
+	}
+	
+	div[class~="tableEffect"].row:nth-child(even) {
+		/*background-color:#B6D388!important;*/
+		/*background-color:#F5F5F5;*/
+		/*
+		background-image:-moz-linear-gradient(left,#FFF,#CCC,#FFF);
+		background-image:-webkit-linear-gradient(left,#FFF,#CCC,#FFF);
+		background-image:-o-linear-gradient(left,#FFF,#CCC,#FFF);
+		background-image:-ms-linear-gradient(left,#FFF,#CCC,#FFF);
+		background-image:linear-gradient(left,#FFF,#CCC,#FFF);
+		*/
+	}
+	
+	/*
+	input[type="button"] {
+		width:85%;
+	}
+	*/
+	input[type="button"] {
+		margin-bottom:10px;
+		text-align:left;
+	}
+	input[type="button"].fullLenghtButton {
+		width:100%;
+	}
+	
+	
+	
+	select {
+		/*width:85%;*/
+		margin-bottom:10px;
+	}
+	
+	.colSoustitreDroite {
+		text-align:left;
+	}
+	
+}

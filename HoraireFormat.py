@@ -74,29 +74,64 @@ sigleRe = '(' + genieRe + numRe + ')'
 txt = re.sub(sigleRe, insertBR, txt)
 
 soup = BeautifulSoup(txt) #Parse html
-tables = soup.find_all('table') #Extract tables
 
 #Basic check to detect if the file is in the expected format
-assert len(tables) == 6, "Unexpected html format : Wrong number of tables"
+labelCount = len(soup.find_all('label'))
+divCount = len(soup.find_all('div'))
+assert labelCount > 50 and divCount > 100, "Unexpected html format : html is not full of divs and labels"
 
-#remove all table formatting
-for table in tables:
-    table.attrs.clear() #Clear attributes
+def removeTags(root, tagName):
+    for tag in root.find_all(tagName):
+        tag.extract()
 
-#Remove all td attributes other than colspan
-for td in soup.find_all('td'):
-    for key in td.attrs.keys():
-        if key != 'colspan':
-            del td.attrs[key]
+#no need for the labels
+removeTags(soup, 'label')
+
+def tableFromDivs(wrapperDiv):
+    divTable = wrapperDiv
+    rows = divTable.find_all(recursive=False) #Extract rows
+
+    #Create new table tag and fill it
+    table = soup.new_tag('table')
+    for row in rows :
+        tr = soup.new_tag('tr')
+        for elem in row :
+            te = soup.new_tag('td')
+            for desc in list(elem.descendants):
+                te.append(desc)
+            tr.append(te)
+        table.append(tr)
+
+    #remove any child divs copied in the new table
+    removeTags(table, 'div')
+
+    return table
+
+def addHeaderToTable(strings, table):
+    header = soup.new_tag('tr')
+    for s in strings :
+        cell = soup.new_tag('th')
+        cell.append(s)
+        header.append(cell)
+    table.insert(0, header)
+
+courseTable = tableFromDivs(soup.find(class_='wrapperPourListeCoursResume'))
+addHeaderToTable((u'Sigle', u'Intitulé', u'Groupe théorique', u'Groupe laboratoire', u'Crédits'), courseTable)
+soup.html.body.append(courseTable)
+
+scheduleTable = tableFromDivs(soup.find(class_='wrapperPourListeCoursActuels'))
+addHeaderToTable((u'Période', u'Lundi', u'Mardi', u'Mercredi', u'Jeudi', u'Vendredi'), scheduleTable)
+soup.html.body.append(scheduleTable)
+
 
 #format text from shedule
-for txt in soup.findAll(text=True):
+for txt in scheduleTable.findAll(text=True):
     s = re.sub('\([0-9]{2}\)','', txt) # remove group numbers
     s = s.replace(' Hebdo.','').replace('Lab. ','Lab').replace('Lab.','Lab').replace('2 sem. ','')
     txt.replaceWith(s)
 
 #convert shedule DOM to 2D array
-shedule = tables[5]
+shedule = scheduleTable
 rows = shedule.findAll('tr')
 arr = []
 for i, tr in enumerate(rows):
@@ -108,6 +143,7 @@ for i, tr in enumerate(rows):
 arr.pop(0) #remove empty dim
 arr = zip(*arr) #transpose shedule
 
+#Merge cells corresponding to the same course
 #add rowspan attributes and mark cells to remove
 for i in range(0,len(arr)): #row
     for j in xrange(0,len(arr[i])-1): #col index of first cell
@@ -173,4 +209,4 @@ with open('result.css','w') as out_file:
     out_file.write(css)
 
 #save result
-writeTables((tables[1], tables[3], shedule))
+writeTables((courseTable, scheduleTable))
