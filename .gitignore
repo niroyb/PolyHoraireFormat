@@ -165,3 +165,6 @@ pip-log.txt
 # Generated files
 result.css
 result.html
+
+# Jetbrains Pycharm
+.idea/
