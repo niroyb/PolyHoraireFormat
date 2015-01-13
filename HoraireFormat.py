@@ -74,29 +74,44 @@ sigleRe = '(' + genieRe + numRe + ')'
 txt = re.sub(sigleRe, insertBR, txt)
 
 soup = BeautifulSoup(txt) #Parse html
-tables = soup.find_all('table') #Extract tables
 
 #Basic check to detect if the file is in the expected format
-assert len(tables) == 6, "Unexpected html format : Wrong number of tables"
+labelCount = len(soup.find_all('label'))
+divCount = len(soup.find_all('div'))
+assert labelCount > 50 and divCount > 100, "Unexpected html format : html is not full of divs and labels"
 
-#remove all table formatting
-for table in tables:
-    table.attrs.clear() #Clear attributes
+def removeLabels():
+    for label in soup.find_all('label'):
+        label.extract()
 
-#Remove all td attributes other than colspan
-for td in soup.find_all('td'):
-    for key in td.attrs.keys():
-        if key != 'colspan':
-            del td.attrs[key]
+divTableSchedule = soup.find(class_='wrapperPourListeCoursActuels') #Extract schedule
+rows = divTableSchedule.find_all(recursive=False) #Extract rows
+
+#Create new table for schedule
+table = soup.new_tag('table')
+for r, row in enumerate(rows) :
+    tr = soup.new_tag('tr')
+    for elem in row :
+        te = soup.new_tag('th') if r==0 else soup.new_tag('td')
+        for desc in list(elem.descendants):
+            te.append(desc)
+        tr.append(te)
+    if r==0 :
+        removeLabels() #kludge
+    table.append(tr)
+
+#remove any divs left
+for div in table.find_all('div'):
+    div.extract()
 
 #format text from shedule
-for txt in soup.findAll(text=True):
+for txt in table.findAll(text=True):
     s = re.sub('\([0-9]{2}\)','', txt) # remove group numbers
     s = s.replace(' Hebdo.','').replace('Lab. ','Lab').replace('Lab.','Lab').replace('2 sem. ','')
     txt.replaceWith(s)
 
 #convert shedule DOM to 2D array
-shedule = tables[5]
+shedule = table
 rows = shedule.findAll('tr')
 arr = []
 for i, tr in enumerate(rows):
@@ -108,6 +123,7 @@ for i, tr in enumerate(rows):
 arr.pop(0) #remove empty dim
 arr = zip(*arr) #transpose shedule
 
+#Merge cells corresponding to the same course
 #add rowspan attributes and mark cells to remove
 for i in range(0,len(arr)): #row
     for j in xrange(0,len(arr[i])-1): #col index of first cell
@@ -127,7 +143,7 @@ for d in dirty:
     d.extract()
 
 #add class Course to cells
-tds = set(t.parent for t in soup.findAll(text=re.compile(sigleRe))) #get td with sigle
+tds = set(t.parent for t in table.findAll(text=re.compile(sigleRe))) #get td with sigle
 courses = set()
 for td in tds:
     course = str(td.contents[0]).strip()
@@ -173,4 +189,4 @@ with open('result.css','w') as out_file:
     out_file.write(css)
 
 #save result
-writeTables((tables[1], tables[3], shedule))
+writeTables((shedule,))
