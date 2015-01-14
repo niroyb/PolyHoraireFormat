@@ -21,20 +21,23 @@ def get_spaced_colors(number_colors, lih=0.7, sat=0.8):
     
 def write_tables(tables):
     """Save html content of elements in tables to html file"""
-    output = file('result.html', 'w')
-    
-    output.write('''<html><head>
+    base_template = '''<html>
+<head>
 <link rel="stylesheet" type="text/css" href="result.css" />
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Horaire Personnel</title></head>''')
-    output.write('<center>')
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Horaire Personnel</title>
+</head>
+<center></center>
+</html>'''
+    clean_soup = BeautifulSoup(base_template)
+    center = clean_soup.find('center')
     for table in tables:
-        pretty_html = table.prettify()
-        output.write(pretty_html.encode("iso-8859-1"))
-        output.write('<br>')
-    output.write('</center>')
-    output.write('</html>')
-    output.close()
+        center.append(table)
+        center.append(soup.new_tag('br'))
+
+    with open('result.html', 'w') as output:
+        pretty_html = clean_soup.prettify()
+        output.write(pretty_html.encode("utf-8"))
 
 
 def insert_break(match_obj):
@@ -66,15 +69,10 @@ if not os.path.isfile(filePath):
 print 'Converting file :', filePath
 txt = open(filePath).read()
 
-# Preparser formatting
-txt = txt.replace('<br>', '<br />').replace('À déterminer', '')
-txt = re.sub('</?center>', '', txt)
-txt = re.sub('</?font.*?>', '', txt)
-
-# Insert new line after course name
 genieRe = '[A-Z]{1,4}-?([A-Z]{3})?'
 numRe = '[0-9]{3,4}[A-Z]?'
 sigleRe = '(' + genieRe + numRe + ')'
+# Insert new line after course name
 txt = re.sub(sigleRe, insert_break, txt)
 
 # Parse html
@@ -103,7 +101,7 @@ def table_from_divs(wrapper_div):
     table = soup.new_tag('table')
     for row in rows:
         tr = soup.new_tag('tr')
-        for elem in row :
+        for elem in row:
             te = soup.new_tag('td')
             for desc in list(elem.descendants):
                 te.append(desc)
