@@ -202,22 +202,23 @@ def save_css(new_soup):
 
     # Generate CSS
     css = '''td,th
-    {
-    border:1px solid black;
-    text-align:center;
-    padding: 5px;
-    font-family:Arial,Helvetica,sans-serif;
-    /*Make chrome print the background color*/
-    -webkit-print-color-adjust:exact;
-    }
+{
+border:1px solid black;
+text-align:center;
+padding: 5px;
+font-family:Arial,Helvetica,sans-serif;
+/*Make chrome print the background color*/
+-webkit-print-color-adjust:exact;
+}
 
-    table
-    {
-    border:1px solid black;
-    border-collapse:collapse;
-    width: 815px;
-    }
-    ''' + colCSS
+table
+{
+border:1px solid black;
+border-collapse:collapse;
+width: 815px;
+}
+
+''' + colCSS
 
     with open('result.css', 'w') as out_file:
         out_file.write(css)
