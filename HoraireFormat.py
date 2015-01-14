@@ -10,10 +10,10 @@ import re
 import sys
 import os
 
-genie_regex = '[A-Z]{1,4}-?([A-Z]{3})?'
-num_regex = '[0-9]{3,4}[A-Z]?'
-sigle_regex = '(' + genie_regex + num_regex + ')'
 COURSES = set()
+COURSE_REGEX = '([A-Z]{1,4}-?([A-Z]{3})?' \
+               '[0-9]{3,4}[A-Z]?)'
+
 
 def get_spaced_colors(number_colors, lih=0.7, sat=0.8):
     """Returns an array of rgb colors each coded as a tuple of 3 numbers"""
@@ -58,6 +58,7 @@ def table_from_divs(wrapper_div):
     remove_tags(table, 'div')
     return table
 
+
 def add_header_to_table(strings, table):
     soup = BeautifulSoup()
     header = soup.new_tag('tr')
@@ -94,13 +95,15 @@ def get_schedule_path():
 def preprocess(schedule_html):
     """Modify the html before it is parsed"""
     # Insert new line after course name
-    return re.sub(sigle_regex, insert_break, schedule_html)
+    return re.sub(COURSE_REGEX, insert_break, schedule_html)
+
 
 def check_format(soup):
     """Basic check to detect if the dom is in the expected format"""
-    labelCount = len(soup.find_all('label'))
-    divCount = len(soup.find_all('div'))
-    assert labelCount > 50 and divCount > 100, "Unexpected html format : html is not full of divs and labels"
+    label_count = len(soup.find_all('label'))
+    div_count = len(soup.find_all('div'))
+    assert label_count > 50 and div_count > 100, "Unexpected html format : html is not full of divs and labels"
+
 
 def reformat(soup):
     """Convert crappy dom to less crappy dom"""
@@ -117,24 +120,24 @@ def reformat(soup):
 
     # No need for the labels
     remove_tags(soup, 'label')
-    courseTable = table_from_divs(soup.find(class_='wrapperPourListeCoursResume'))
-    add_header_to_table((u'Sigle', u'Intitulé', u'Groupe théorique', u'Groupe laboratoire', u'Crédits'), courseTable)
-    center.append(courseTable)
+    course_table = table_from_divs(soup.find(class_='wrapperPourListeCoursResume'))
+    add_header_to_table((u'Sigle', u'Intitulé', u'Groupe théorique', u'Groupe laboratoire', u'Crédits'), course_table)
+    center.append(course_table)
     center.append(new_soup.new_tag('br'))
 
-    scheduleTable = table_from_divs(soup.find(class_='wrapperPourListeCoursActuels'))
-    add_header_to_table((u'Période', u'Lundi', u'Mardi', u'Mercredi', u'Jeudi', u'Vendredi'), scheduleTable)
-    center.append(scheduleTable)
+    schedule_table = table_from_divs(soup.find(class_='wrapperPourListeCoursActuels'))
+    add_header_to_table((u'Période', u'Lundi', u'Mardi', u'Mercredi', u'Jeudi', u'Vendredi'), schedule_table)
+    center.append(schedule_table)
 
     # Format text from schedule
-    for txt in scheduleTable.findAll(text=True):
+    for txt in schedule_table.findAll(text=True):
         # Remove group numbers
         s = re.sub('\([0-9]{2}\)', '', txt)
         s = s.replace(' Hebdo.', '').replace('Lab. ', 'Lab').replace('Lab.', 'Lab').replace('2 sem. ', '')
         txt.replaceWith(s)
 
     # Convert schedule DOM to 2D array
-    schedule = scheduleTable
+    schedule = schedule_table
     rows = schedule.findAll('tr')
     arr = []
     for i, tr in enumerate(rows):
@@ -168,7 +171,7 @@ def reformat(soup):
         d.extract()
 
     # Add class Course to cells
-    tds = set(t.parent for t in new_soup.findAll(text=re.compile(sigle_regex)))  # Get td with sigle
+    tds = set(t.parent for t in new_soup.findAll(text=re.compile(COURSE_REGEX)))  # Get td with sigle
 
     for td in tds:
         course = str(td.contents[0]).strip()
@@ -176,9 +179,9 @@ def reformat(soup):
         td['class'] = course
 
     # Add class Conflict to cells with multiple courses
-    courseRe = '|'.join(COURSES)
+    courses_regex = '|'.join(COURSES)
     for td in tds:
-        td_courses = re.findall(courseRe, td.text, re.MULTILINE)
+        td_courses = re.findall(courses_regex, td.text, re.MULTILINE)
         if len(td_courses) > 1:
             td['class'] += ' Conflict'
     return new_soup
@@ -189,16 +192,16 @@ def save_new_schedule(new_soup):
         pretty_html = new_soup.prettify()
         output.write(pretty_html.encode("utf-8"))
 
-def save_css(new_soup):
+
+def save_css():
     # Generate css rules for each course
     cols = get_spaced_colors(len(COURSES))
     format_str = '.{} {{ background-color:rgb{};}}'
-    CSS_colors = [format_str.format(course, str(col)) for course, col in zip(COURSES, cols)]
+    css_colors = [format_str.format(course, str(col)) for course, col in zip(COURSES, cols)]
 
     # Add css rule for conflicts
-    CSS_colors.append('.Conflict {font-weight:bold;}')
-    colCSS = '\n'.join(CSS_colors)
-    # print colCSS
+    css_colors.append('.Conflict {font-weight:bold;}')
+    css_colors_str = '\n'.join(css_colors)
 
     # Generate CSS
     css = '''td,th
@@ -218,7 +221,7 @@ border-collapse:collapse;
 width: 815px;
 }
 
-''' + colCSS
+''' + css_colors_str
 
     with open('result.css', 'w') as out_file:
         out_file.write(css)
@@ -232,7 +235,7 @@ def main():
     check_format(soup)
     new_soup = reformat(soup)
     save_new_schedule(new_soup)
-    save_css(new_soup)
+    save_css()
 
 if __name__ == '__main__':
     main()
